@@ -93,6 +93,7 @@
             justify-content: center;
             font-size: 4rem;
             color: white;
+            position: relative;
         }
 
         .game-card-content {
@@ -136,6 +137,8 @@
 
         .game-card a, .game-card button {
             align-self: flex-start;
+            pointer-events: auto;
+            z-index: 10;
         }
 
         .btn {
@@ -150,6 +153,7 @@
             font-weight: bold;
             cursor: pointer;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
+            pointer-events: auto;
         }
 
         .btn:hover {
