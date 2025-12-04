@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blackjack — Game Studio</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;background:#0f1724;color:#e6eef8;display:flex;align-items:flex-start;justify-content:center;padding:30px}
+    .container{width:100%;max-width:900px;background:linear-gradient(180deg,#122033 0%, #0b1524 100%);border-radius:12px;padding:20px;box-shadow:0 10px 30px rgba(2,6,23,.6)}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    header h1{font-size:1.2rem;margin:0}
+    .balance{font-weight:700}
+    .controls{display:flex;gap:12px;align-items:center}
+    .controls input[type=number]{width:110px;padding:8px;border-radius:6px;border:1px solid #213243;background:#071027;color:#e6eef8}
+    .btn{padding:8px 14px;background:#1e90ff;border:none;border-radius:6px;color:white;cursor:pointer}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .table{display:flex;gap:20px;justify-content:space-between;margin-top:18px}
+    .hand{flex:1;background:#071427;border-radius:8px;padding:12px;min-height:120px}
+    .hand h3{margin:0 0 8px 0;font-size:0.95rem}
+    .cards{display:flex;gap:8px}
+    .card{width:60px;height:88px;border-radius:6px;background:#fff;color:#000;display:flex;align-items:center;justify-content:center;font-weight:700}
+    .log{margin-top:18px;background:#071427;padding:10px;border-radius:6px;min-height:48px}
+    .center{display:flex;gap:8px;align-items:center}
+    .top-actions{display:flex;gap:12px;align-items:center}
+    footer{margin-top:18px;text-align:center;color:#9fb1c9;font-size:0.85rem}
+    a.home{color:#9fb1c9;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Blackjack</h1>
+      <div class="balance">Balance: $<span id="balance">0</span></div>
+    </header>
+
+    <div class="top-actions">
+      <div class="controls">
+        <label for="bet">Bet:</label>
+        <input id="bet" type="number" min="1" step="1" value="10">
+        <button id="btn-deal" class="btn">Deal</button>
+      </div>
+      <div style="margin-left:auto">
+        <a class="home" href="index.html">← Back to Games</a>
+      </div>
+    </div>
+
+    <div class="table">
+      <div class="hand">
+        <h3>Dealer <small id="dealer-score"></small></h3>
+        <div id="dealer-cards" class="cards"></div>
+      </div>
+      <div class="hand">
+        <h3>You <small id="player-score"></small></h3>
+        <div id="player-cards" class="cards"></div>
+      </div>
+    </div>
+
+    <div class="center" style="margin-top:12px">
+      <button id="btn-hit" class="btn" disabled>Hit</button>
+      <button id="btn-stand" class="btn" disabled>Stand</button>
+      <button id="btn-double" class="btn" disabled>Double</button>
+    </div>
+
+    <div class="log" id="log">Place a bet and click Deal to start.</div>
+
+    <footer>
+      <div>Start with $500. If you run out of money it resets to $50.</div>
+      <div style="margin-top:6px"><a class="home" href="index.html">Back to landing</a></div>
+    </footer>
+  </div>
+
+  <script>
+    // Simple Blackjack implementation
+    const STORAGE_KEY = 'blackjackSave_v1';
+    let balance = 0;
+    let bet = 0;
+    let deck = [];
+    let dealer = [];
+    let player = [];
+    let inRound = false;
+
+    const balanceEl = document.getElementById('balance');
+    const betEl = document.getElementById('bet');
+    const btnDeal = document.getElementById('btn-deal');
+    const btnHit = document.getElementById('btn-hit');
+    const btnStand = document.getElementById('btn-stand');
+    const btnDouble = document.getElementById('btn-double');
+    const dealerCardsEl = document.getElementById('dealer-cards');
+    const playerCardsEl = document.getElementById('player-cards');
+    const logEl = document.getElementById('log');
+    const dealerScoreEl = document.getElementById('dealer-score');
+    const playerScoreEl = document.getElementById('player-score');
+
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({balance}));
+    }
+    function load() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        try {
+          const obj = JSON.parse(raw);
+          if (typeof obj.balance === 'number') {
+            balance = obj.balance;
+          }
+        } catch(e) { /* ignore */ }
+      }
+      if (!balance) balance = 500; // default start
+      updateUI();
+    }
+
+    function updateUI() {
+      balanceEl.textContent = balance.toFixed(0);
+      btnHit.disabled = !inRound;
+      btnStand.disabled = !inRound;
+      btnDouble.disabled = !inRound || player.length !== 2 || bet*2 > balance; // allowed only on initial two cards
+      betEl.disabled = inRound;
+      btnDeal.disabled = inRound;
+    }
+
+    function createDeck() {
+      const suits=['♠','♥','♦','♣'];
+      const ranks=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+      const d=[];
+      for(const s of suits) for(const r of ranks) d.push({r,s});
+      // shuffle
+      for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]]}
+      return d;
+    }
+
+    function cardValue(card){
+      if(!card) return 0;
+      const r = card.r;
+      if (r==='A') return 11;
+      if (['J','Q','K'].includes(r)) return 10;
+      return parseInt(r,10);
+    }
+
+    function scoreHand(hand){
+      let total = 0; let aces = 0;
+      for(const c of hand){ total += cardValue(c); if (c.r==='A') aces++; }
+      while(total>21 && aces>0){ total -= 10; aces--; }
+      return total;
+    }
+
+    function renderCards(el, hand, hideFirst=false){
+      el.innerHTML='';
+      hand.forEach((c,i)=>{
+        const div = document.createElement('div');
+        div.className='card';
+        if (hideFirst && i===0) { div.textContent='?'; div.style.background='#0b2030'; div.style.color='#9fb1c9' }
+        else div.textContent = c.r + c.s;
+        el.appendChild(div);
+      });
+    }
+
+    function log(msg){ logEl.textContent = msg }
+
+    function endRound(result, payoutMultiplier=1){
+      // result: 'win','lose','push','blackjack'
+      if (result==='win') { balance += bet * payoutMultiplier; log('You win! +' + (bet*payoutMultiplier)); }
+      else if (result==='blackjack') { const win = Math.floor(bet * 1.5); balance += win; log('Blackjack! +' + win); }
+      else if (result==='push'){ balance += 0; log('Push. Bet returned.'); }
+      else { balance -= bet; log('You lose. -' + bet); }
+
+      inRound = false;
+      // bankruptcy rule: if balance <= 0, reset to 50 (as requested)
+      if (balance <= 0) { balance = 50; log('You ran out of money — balance reset to $50.'); }
+      save(); updateUI(); renderScores();
+    }
+
+    function dealerPlay(){
+      // reveal and play dealer until 17+
+      while(scoreHand(dealer) < 17){ dealer.push(deck.pop()); }
+    }
+
+    function renderScores(){
+      playerScoreEl.textContent = scoreHand(player) ? `(${scoreHand(player)})` : '';
+      // dealer score: hide first card if inRound
+      dealerScoreEl.textContent = inRound ? '' : `(${scoreHand(dealer)})`;
+    }
+
+    function deal(){
+      bet = Math.max(1, Math.floor(Number(betEl.value)||0));
+      if (bet <=0) { log('Place a valid bet.'); return }
+      if (bet > balance) { log('Bet cannot exceed balance.'); return }
+      deck = createDeck(); dealer = []; player = [];
+      // initial deal
+      player.push(deck.pop()); dealer.push(deck.pop()); player.push(deck.pop()); dealer.push(deck.pop());
+      inRound = true;
+      renderCards(playerCardsEl, player);
+      renderCards(dealerCardsEl, dealer, true);
+      renderScores();
+      log('Round started — choose Hit, Stand, or Double.');
+      updateUI();
+      // immediate blackjack check
+      const pScore = scoreHand(player); const dScore = scoreHand(dealer);
+      if (pScore===21){
+        // player blackjack
+        // payout: 3:2 (handled as 'blackjack' in endRound)
+        // do not subtract bet now; treat endRound appropriately
+        inRound=false; renderCards(dealerCardsEl, dealer); renderScores(); endRound('blackjack');
+      }
+    }
+
+    function hit(){
+      if(!inRound) return;
+      player.push(deck.pop());
+      renderCards(playerCardsEl, player);
+      const pScore = scoreHand(player);
+      renderScores();
+      if (pScore>21){
+        // bust
+        inRound=false; renderCards(dealerCardsEl, dealer); endRound('lose');
+      }
+      updateUI();
+    }
+
+    function stand(){
+      if(!inRound) return;
+      // dealer plays
+      renderCards(dealerCardsEl, dealer);
+      dealerPlay();
+      renderCards(dealerCardsEl, dealer);
+      const pScore = scoreHand(player); const dScore = scoreHand(dealer);
+      if (dScore>21 || pScore> dScore) endRound('win');
+      else if (pScore===dScore) endRound('push');
+      else endRound('lose');
+      updateUI();
+    }
+
+    function dbl(){
+      if(!inRound) return;
+      if (bet*2 > balance) { log('Not enough balance to double.'); return }
+      // double bet, take one card, then stand
+      balance -= 0; // we'll adjust in endRound (bet is considered full amount)
+      bet = bet * 2;
+      player.push(deck.pop()); renderCards(playerCardsEl, player); renderScores();
+      if (scoreHand(player)>21){ inRound=false; renderCards(dealerCardsEl, dealer); endRound('lose'); updateUI(); return }
+      // now dealer plays
+      renderCards(dealerCardsEl, dealer); dealerPlay(); renderCards(dealerCardsEl, dealer);
+      const pScore = scoreHand(player); const dScore = scoreHand(dealer);
+      if (dScore>21 || pScore> dScore) endRound('win');
+      else if (pScore===dScore) endRound('push');
+      else endRound('lose');
+      updateUI();
+    }
+
+    // Event bindings
+    btnDeal.addEventListener('click', ()=>{ deal(); });
+    btnHit.addEventListener('click', ()=>{ hit(); });
+    btnStand.addEventListener('click', ()=>{ stand(); });
+    btnDouble.addEventListener('click', ()=>{ dbl(); });
+
+    // load on start
+    load();
+  </script>
+</body>
+</html>
