@@ -1,0 +1,25 @@
+name: Deploy to Google Cloud Storage
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SERVICE_KEY }}
+
+    - name: Set up gcloud CLI
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Sync repo to GCS bucket
+      run: |
+        gsutil -m rsync -r -d . gs://${{ secrets.GCP_BUCKET_NAME }}
