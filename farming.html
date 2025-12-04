@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farming Simulator</title>
+    <link rel="stylesheet" href="style.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9884249376089321"
+         crossorigin="anonymous"></script>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="stats-compact">
+                <span class="stat-item">💰 <span id="gold">50</span>g</span>
+                <span class="stat-item">⚡ <span id="energy">100</span>/100</span>
+                <span class="stat-item">📅 Day <span id="day">1</span></span>
+                <span class="stat-item">🌾 <span id="season">Spring</span></span>
+            </div>
+            <div class="game-info">
+                <span id="field-size" class="field-info">1×1</span>
+            </div>
+            <button id="btn-sleep" class="btn-sleep-top" onclick="game.sleep()">Sleep</button>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content-area">
+            <!-- Left Sidebar - Controls -->
+            <div class="sidebar left-sidebar">
+                <h3>Tools</h3>
+                <button id="btn-plow" class="btn btn-compact" onclick="game.selectTool('plow')">🌍 Plow</button>
+                <button id="btn-water" class="btn btn-compact" onclick="game.selectTool('water')">💧 Water</button>
+                <button id="btn-seed" class="btn btn-compact" onclick="game.selectTool('seed')">🌱 Plant</button>
+                <button id="btn-harvest" class="btn btn-compact" onclick="game.selectTool('harvest')">🌽 Harvest</button>
+                <button id="btn-hoe" class="btn btn-compact" onclick="game.selectTool('hoe')">🛠️ Clear</button>
+
+                <h3 style="margin-top: 20px;">Inventory</h3>
+                <div id="inventory" class="inventory-list"></div>
+
+                <div class="ad-space left-ad">
+                    <ins class="adsbygoogle"
+                         style="display:block"
+                         data-ad-client="ca-pub-9884249376089321"
+                         data-ad-slot="1234567890"
+                         data-ad-format="vertical"
+                         data-full-width-responsive="true"></ins>
+                    <script>
+                         (adsbygoogle = window.adsbygoogle || []).push({});
+                    </script>
+                </div>
+            </div>
+
+            <!-- Center - Field -->
+            <div id="game-canvas" class="game-canvas">
+                <div id="field" class="field"></div>
+                <div id="message-box" class="message-box"></div>
+            </div>
+
+            <!-- Right Sidebar - Shop & Upgrades -->
+            <div class="sidebar right-sidebar">
+                <div class="panel">
+                    <h3>Crop Shop</h3>
+                    <div id="shop-items" class="shop-items"></div>
+                </div>
+
+                <div class="panel">
+                    <h3>Pets</h3>
+                    <div id="pets" class="pets-list"></div>
+                </div>
+
+                <div class="panel">
+                    <h3>Egg Shop</h3>
+                    <div id="pet-shop-items" class="shop-items"></div>
+                </div>
+
+                <div class="panel">
+                    <h3>Upgrades</h3>
+                    <div id="upgrades-list" class="upgrades-list"></div>
+                </div>
+
+                <div class="ad-space right-ad">
+                    <ins class="adsbygoogle"
+                         style="display:block"
+                         data-ad-client="ca-pub-9884249376089321"
+                         data-ad-slot="9876543210"
+                         data-ad-format="vertical"
+                         data-full-width-responsive="true"></ins>
+                    <script>
+                         (adsbygoogle = window.adsbygoogle || []).push({});
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Center Ad -->
+    <div class="ad-space bottom-ad">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-9884249376089321"
+             data-ad-slot="5555666677"
+             data-ad-format="horizontal"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+
+    <!-- Welcome Tutorial Modal -->
+    <div id="welcome-modal" class="modal">
+        <div class="modal-content welcome-modal">
+            <h2>Welcome to Farm Simulator!</h2>
+            <div class="tutorial-content">
+                <div class="tutorial-section">
+                    <h3>🌾 How to Play:</h3>
+                    <p><strong>1. Plow Land:</strong> Use the Plow tool on empty tiles to prepare soil.</p>
+                    <p><strong>2. Plant Crops:</strong> Use the Plant tool on plowed tiles to select and sow seeds.</p>
+                    <p><strong>3. Water Daily:</strong> Use the Water tool each day to hydrate growing crops.</p>
+                    <p><strong>4. Harvest:</strong> Use the Harvest tool on mature crops to collect and sell them.</p>
+                </div>
+                <div class="tutorial-section">
+                    <h3>💰 Earn & Spend:</h3>
+                    <p><strong>Crop Sales:</strong> Harvested crops sell for gold. Rare crops are worth more!</p>
+                    <p><strong>Upgrades:</strong> Spend gold to upgrade tools (bigger AOE) or expand your field.</p>
+                    <p><strong>Gacha Eggs:</strong> Use gold to purchase eggs and hatch pets for income bonuses.</p>
+                </div>
+                <div class="tutorial-section">
+                    <h3>🐾 Pet Gacha System:</h3>
+                    <p><strong>Basic Eggs (500g):</strong> Get common or rare pets. Pity at 50 pulls.</p>
+                    <p><strong>Rare Eggs (1,500g):</strong> Get rare or exotic pets. Pity at 30 pulls.</p>
+                    <p><strong>Exotic Eggs (5,000g):</strong> High chance for exotic pets. Pity at 10 pulls.</p>
+                </div>
+                <div class="tutorial-section">
+                    <h3>⚡ Energy System:</h3>
+                    <p>Each action costs 1 energy. Sleep to restore energy and progress to the next day.</p>
+                </div>
+                <div class="tutorial-section" style="background-color: #2c3e50; padding: 10px; border-radius: 4px;">
+                    <p style="font-size: 12px; color: #95a5a6; margin: 0;"><strong>Tip:</strong> Plan your farm layout strategically. Use AOE upgrades to plow/water multiple tiles at once!</p>
+                </div>
+            </div>
+            <button onclick="document.getElementById('welcome-modal').style.display = 'none'; localStorage.setItem('tutorialSeen', 'true')" class="btn welcome-btn">Start Playing!</button>
+        </div>
+    </div>
+
+    <!-- Seeding Modal -->
+    <div id="seed-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Select a Crop to Plant</h2>
+            <div id="seed-options" class="seed-options"></div>
+            <button onclick="document.getElementById('seed-modal').style.display = 'none'" class="btn modal-close">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Developer Mode Panel -->
+    <div id="dev-panel" class="dev-panel" style="display: none;">
+        <div class="dev-content">
+            <h2>Developer Mode</h2>
+            <button onclick="game.gold += 1000; game.updateUI(); game.renderShop(); game.renderPetShop(); game.renderUpgrades(); game.saveGame()" class="btn">+ 1000 Gold</button>
+            <button onclick="game.gold += 10000; game.updateUI(); game.renderShop(); game.renderPetShop(); game.renderUpgrades(); game.saveGame()" class="btn">+ 10000 Gold</button>
+            <button onclick="game.gold = 50; game.updateUI(); game.renderShop(); game.renderPetShop(); game.renderUpgrades(); game.saveGame()" class="btn">Reset Gold</button>
+            <button onclick="Object.keys(game.inventory).forEach(id => game.inventory[id] = 10); game.updateUI(); game.saveGame()" class="btn">Fill Inventory (10x)</button>
+            <button onclick="game.day += 10; game.sleep()" class="btn">+ 10 Days</button>
+            <button onclick="localStorage.removeItem('farmingGameSave'); location.reload()" class="btn">Clear Save & Restart</button>
+            <button onclick="document.getElementById('dev-panel').style.display = 'none'" class="btn">Close</button>
+        </div>
+    </div>
+
+    <script src="crops.js"></script>
+    <script src="pets.js"></script>
+    <script src="game.js"></script>
+    <script>
+        // Hidden developer mode activation (Ctrl+Shift+D)
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+                const devPanel = document.getElementById('dev-panel');
+                devPanel.style.display = devPanel.style.display === 'none' ? 'flex' : 'none';
+            }
+        });
+    </script>
+</body>
+</html>

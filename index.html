@@ -3,180 +3,368 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farming Simulator</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Game Studio - Play Awesome Games</title>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9884249376089321"
          crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-bottom: 3px solid #667eea;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            color: #ccc;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .hero {
+            text-align: center;
+            color: white;
+            margin-bottom: 60px;
+        }
+
+        .hero h2 {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-card-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+        }
+
+        .game-card-content {
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .game-card p {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        .game-status {
+            display: inline-block;
+            font-size: 0.8rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .status-live {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .status-coming {
+            background: #f39c12;
+            color: white;
+        }
+
+        .game-card a, .game-card button {
+            align-self: flex-start;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .ad-banner {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .ad-banner ins {
+            display: block;
+            margin: 0 auto;
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 60px;
+            border-top: 3px solid #667eea;
+        }
+
+        footer p {
+            margin: 5px 0;
+            font-size: 0.95rem;
+        }
+
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .coming-soon-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .game-card:hover .coming-soon-overlay {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .hero h2 {
+                font-size: 1.6rem;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div id="game-container">
-        <!-- Top Bar -->
-        <div class="top-bar">
-            <div class="stats-compact">
-                <span class="stat-item">💰 <span id="gold">50</span>g</span>
-                <span class="stat-item">⚡ <span id="energy">100</span>/100</span>
-                <span class="stat-item">📅 Day <span id="day">1</span></span>
-                <span class="stat-item">🌾 <span id="season">Spring</span></span>
-            </div>
-            <div class="game-info">
-                <span id="field-size" class="field-info">1×1</span>
-            </div>
-            <button id="btn-sleep" class="btn-sleep-top" onclick="game.sleep()">Sleep</button>
+    <header>
+        <h1>🎮 Game Studio</h1>
+        <p>Discover amazing browser-based games!</p>
+    </header>
+
+    <div class="container">
+        <div class="hero">
+            <h2>Welcome to Our Game Collection</h2>
+            <p>Play fun, engaging games directly in your browser. No downloads required!</p>
         </div>
 
-        <!-- Main Content Area -->
-        <div class="content-area">
-            <!-- Left Sidebar - Controls -->
-            <div class="sidebar left-sidebar">
-                <h3>Tools</h3>
-                <button id="btn-plow" class="btn btn-compact" onclick="game.selectTool('plow')">🌍 Plow</button>
-                <button id="btn-water" class="btn btn-compact" onclick="game.selectTool('water')">💧 Water</button>
-                <button id="btn-seed" class="btn btn-compact" onclick="game.selectTool('seed')">🌱 Plant</button>
-                <button id="btn-harvest" class="btn btn-compact" onclick="game.selectTool('harvest')">🌽 Harvest</button>
-                <button id="btn-hoe" class="btn btn-compact" onclick="game.selectTool('hoe')">🛠️ Clear</button>
-
-                <h3 style="margin-top: 20px;">Inventory</h3>
-                <div id="inventory" class="inventory-list"></div>
-
-                <div class="ad-space left-ad">
-                    <ins class="adsbygoogle"
-                         style="display:block"
-                         data-ad-client="ca-pub-9884249376089321"
-                         data-ad-slot="1234567890"
-                         data-ad-format="vertical"
-                         data-full-width-responsive="true"></ins>
-                    <script>
-                         (adsbygoogle = window.adsbygoogle || []).push({});
-                    </script>
+        <div class="games-grid">
+            <!-- Game 1: Farming Simulator (Live) -->
+            <div class="game-card">
+                <div class="game-card-image">🌾</div>
+                <div class="game-card-content">
+                    <span class="game-status status-live">✓ Live Now</span>
+                    <h3>Farming Simulator</h3>
+                    <p>Build and manage your own virtual farm. Plant crops, upgrade tools, hatch pets with a gacha system, and earn gold. Features a dynamic pet system with rare rarities and seasonal gameplay.</p>
+                    <a href="index.html" class="btn">Play Game</a>
                 </div>
             </div>
 
-            <!-- Center - Field -->
-            <div id="game-canvas" class="game-canvas">
-                <div id="field" class="field"></div>
-                <div id="message-box" class="message-box"></div>
+            <!-- Game 2: Placeholder (Coming Soon) -->
+            <div class="game-card">
+                <div class="game-card-image">
+                    ⚔️
+                    <div class="coming-soon-overlay">
+                        <span style="background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 6px;">Coming Soon</span>
+                    </div>
+                </div>
+                <div class="game-card-content">
+                    <span class="game-status status-coming">⏰ Coming Soon</span>
+                    <h3>Epic Quest Dungeon</h3>
+                    <p>Embark on an epic adventure through mystical dungeons. Fight monsters, collect loot, and unlock powerful abilities. Experience turn-based RPG combat at its finest.</p>
+                    <button class="btn btn-disabled" disabled>Coming Soon</button>
+                </div>
             </div>
 
-            <!-- Right Sidebar - Shop & Upgrades -->
-            <div class="sidebar right-sidebar">
-                <div class="panel">
-                    <h3>Crop Shop</h3>
-                    <div id="shop-items" class="shop-items"></div>
+            <!-- Game 3: Placeholder (Coming Soon) -->
+            <div class="game-card">
+                <div class="game-card-image">
+                    🚀
+                    <div class="coming-soon-overlay">
+                        <span style="background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 6px;">Coming Soon</span>
+                    </div>
                 </div>
-
-                <div class="panel">
-                    <h3>Pets</h3>
-                    <div id="pets" class="pets-list"></div>
+                <div class="game-card-content">
+                    <span class="game-status status-coming">⏰ Coming Soon</span>
+                    <h3>Space Runner</h3>
+                    <p>Navigate through space, dodge asteroids, and collect power-ups. How far can you go? Features leaderboards and challenging gameplay that keeps you coming back.</p>
+                    <button class="btn btn-disabled" disabled>Coming Soon</button>
                 </div>
+            </div>
 
-                <div class="panel">
-                    <h3>Egg Shop</h3>
-                    <div id="pet-shop-items" class="shop-items"></div>
+            <!-- Game 4: Placeholder (Coming Soon) -->
+            <div class="game-card">
+                <div class="game-card-image">
+                    🎰
+                    <div class="coming-soon-overlay">
+                        <span style="background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 6px;">Coming Soon</span>
+                    </div>
                 </div>
-
-                <div class="panel">
-                    <h3>Upgrades</h3>
-                    <div id="upgrades-list" class="upgrades-list"></div>
+                <div class="game-card-content">
+                    <span class="game-status status-coming">⏰ Coming Soon</span>
+                    <h3>Lucky Slots Casino</h3>
+                    <p>Spin the reels and try your luck! Collect coins, unlock special features, and climb the daily leaderboards. Fast-paced action with big win potential.</p>
+                    <button class="btn btn-disabled" disabled>Coming Soon</button>
                 </div>
+            </div>
 
-                <div class="ad-space right-ad">
-                    <ins class="adsbygoogle"
-                         style="display:block"
-                         data-ad-client="ca-pub-9884249376089321"
-                         data-ad-slot="9876543210"
-                         data-ad-format="vertical"
-                         data-full-width-responsive="true"></ins>
-                    <script>
-                         (adsbygoogle = window.adsbygoogle || []).push({});
-                    </script>
+            <!-- Game 5: Placeholder (Coming Soon) -->
+            <div class="game-card">
+                <div class="game-card-image">
+                    🧩
+                    <div class="coming-soon-overlay">
+                        <span style="background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 6px;">Coming Soon</span>
+                    </div>
+                </div>
+                <div class="game-card-content">
+                    <span class="game-status status-coming">⏰ Coming Soon</span>
+                    <h3>Puzzle Masters</h3>
+                    <p>Solve mind-bending puzzles and challenges. Progressive difficulty keeps the game fresh and engaging. Perfect for players who love brain teasers and problem-solving.</p>
+                    <button class="btn btn-disabled" disabled>Coming Soon</button>
+                </div>
+            </div>
+
+            <!-- Game 6: Placeholder (Coming Soon) -->
+            <div class="game-card">
+                <div class="game-card-image">
+                    🏀
+                    <div class="coming-soon-overlay">
+                        <span style="background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 6px;">Coming Soon</span>
+                    </div>
+                </div>
+                <div class="game-card-content">
+                    <span class="game-status status-coming">⏰ Coming Soon</span>
+                    <h3>Arcade Hoops</h3>
+                    <p>Test your skill with fast-paced arcade basketball. Shoot hoops, beat high scores, and compete with friends. Features multiple difficulty levels and power-ups.</p>
+                    <button class="btn btn-disabled" disabled>Coming Soon</button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Bottom Center Ad -->
-    <div class="ad-space bottom-ad">
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-9884249376089321"
-             data-ad-slot="5555666677"
-             data-ad-format="horizontal"
-             data-full-width-responsive="true"></ins>
-        <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-    </div>
-
-    <!-- Welcome Tutorial Modal -->
-    <div id="welcome-modal" class="modal">
-        <div class="modal-content welcome-modal">
-            <h2>Welcome to Farm Simulator!</h2>
-            <div class="tutorial-content">
-                <div class="tutorial-section">
-                    <h3>🌾 How to Play:</h3>
-                    <p><strong>1. Plow Land:</strong> Use the Plow tool on empty tiles to prepare soil.</p>
-                    <p><strong>2. Plant Crops:</strong> Use the Plant tool on plowed tiles to select and sow seeds.</p>
-                    <p><strong>3. Water Daily:</strong> Use the Water tool each day to hydrate growing crops.</p>
-                    <p><strong>4. Harvest:</strong> Use the Harvest tool on mature crops to collect and sell them.</p>
-                </div>
-                <div class="tutorial-section">
-                    <h3>💰 Earn & Spend:</h3>
-                    <p><strong>Crop Sales:</strong> Harvested crops sell for gold. Rare crops are worth more!</p>
-                    <p><strong>Upgrades:</strong> Spend gold to upgrade tools (bigger AOE) or expand your field.</p>
-                    <p><strong>Gacha Eggs:</strong> Use gold to purchase eggs and hatch pets for income bonuses.</p>
-                </div>
-                <div class="tutorial-section">
-                    <h3>🐾 Pet Gacha System:</h3>
-                    <p><strong>Basic Eggs (500g):</strong> Get common or rare pets. Pity at 50 pulls.</p>
-                    <p><strong>Rare Eggs (1,500g):</strong> Get rare or exotic pets. Pity at 30 pulls.</p>
-                    <p><strong>Exotic Eggs (5,000g):</strong> High chance for exotic pets. Pity at 10 pulls.</p>
-                </div>
-                <div class="tutorial-section">
-                    <h3>⚡ Energy System:</h3>
-                    <p>Each action costs 1 energy. Sleep to restore energy and progress to the next day.</p>
-                </div>
-                <div class="tutorial-section" style="background-color: #2c3e50; padding: 10px; border-radius: 4px;">
-                    <p style="font-size: 12px; color: #95a5a6; margin: 0;"><strong>Tip:</strong> Plan your farm layout strategically. Use AOE upgrades to plow/water multiple tiles at once!</p>
-                </div>
-            </div>
-            <button onclick="document.getElementById('welcome-modal').style.display = 'none'; localStorage.setItem('tutorialSeen', 'true')" class="btn welcome-btn">Start Playing!</button>
+        <!-- Ad Banner -->
+        <div class="ad-banner">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-9884249376089321"
+                 data-ad-slot="7777888899"
+                 data-ad-format="horizontal"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
         </div>
     </div>
 
-    <!-- Seeding Modal -->
-    <div id="seed-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <h2>Select a Crop to Plant</h2>
-            <div id="seed-options" class="seed-options"></div>
-            <button onclick="document.getElementById('seed-modal').style.display = 'none'" class="btn modal-close">Cancel</button>
-        </div>
-    </div>
-
-    <!-- Developer Mode Panel -->
-    <div id="dev-panel" class="dev-panel" style="display: none;">
-        <div class="dev-content">
-            <h2>Developer Mode</h2>
-            <button onclick="game.gold += 1000; game.updateUI(); game.renderShop(); game.renderPetShop(); game.renderUpgrades(); game.saveGame()" class="btn">+ 1000 Gold</button>
-            <button onclick="game.gold += 10000; game.updateUI(); game.renderShop(); game.renderPetShop(); game.renderUpgrades(); game.saveGame()" class="btn">+ 10000 Gold</button>
-            <button onclick="game.gold = 50; game.updateUI(); game.renderShop(); game.renderPetShop(); game.renderUpgrades(); game.saveGame()" class="btn">Reset Gold</button>
-            <button onclick="Object.keys(game.inventory).forEach(id => game.inventory[id] = 10); game.updateUI(); game.saveGame()" class="btn">Fill Inventory (10x)</button>
-            <button onclick="game.day += 10; game.sleep()" class="btn">+ 10 Days</button>
-            <button onclick="localStorage.removeItem('farmingGameSave'); location.reload()" class="btn">Clear Save & Restart</button>
-            <button onclick="document.getElementById('dev-panel').style.display = 'none'" class="btn">Close</button>
-        </div>
-    </div>
-
-    <script src="crops.js"></script>
-    <script src="pets.js"></script>
-    <script src="game.js"></script>
-    <script>
-        // Hidden developer mode activation (Ctrl+Shift+D)
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.shiftKey && e.key === 'D') {
-                const devPanel = document.getElementById('dev-panel');
-                devPanel.style.display = devPanel.style.display === 'none' ? 'flex' : 'none';
-            }
-        });
-    </script>
+    <footer>
+        <p>&copy; 2024 Game Studio. All rights reserved.</p>
+        <p>Made with ❤️ by <a href="https://github.com/JonathanPurvis">Jonathan Purvis</a></p>
+        <p>
+            <a href="https://github.com/JonathanPurvis/game.009">GitHub Repository</a> |
+            <a href="#contact">Contact</a> |
+            <a href="#privacy">Privacy Policy</a>
+        </p>
+    </footer>
 </body>
 </html>
