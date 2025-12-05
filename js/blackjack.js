@@ -10,7 +10,7 @@ let inRound = false;
 
 // Elements (may be present in header and sidebar)
 const balanceEl = document.getElementById('balance');
-const balanceHeaderEl = document.getElementById('balance-header');
+const balanceHeaderEl = document.getElementById('balance-sidebar');
 const betEl = document.getElementById('bet');
 const betRange = document.getElementById('bet-range');
 const presetBtns = document.querySelectorAll('.preset-btns .btn.secondary');

@@ -68,8 +68,9 @@ class ArcadeHoops {
         const x = (e.clientX - rect.left) * (this.canvas.width / rect.width);
         const y = (e.clientY - rect.top) * (this.canvas.height / rect.height);
 
-        const dx = x - this.ball.x;
-        const dy = y - this.ball.y;
+        // Direction from mouse to ball (where we want to shoot)
+        const dx = this.ball.x - x;
+        const dy = this.ball.y - y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance > 0) {
@@ -85,8 +86,9 @@ class ArcadeHoops {
         const x = (touch.clientX - rect.left) * (this.canvas.width / rect.width);
         const y = (touch.clientY - rect.top) * (this.canvas.height / rect.height);
 
-        const dx = x - this.ball.x;
-        const dy = y - this.ball.y;
+        // Direction from touch to ball (where we want to shoot)
+        const dx = this.ball.x - x;
+        const dy = this.ball.y - y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance > 0) {
