@@ -3,7 +3,8 @@ class FarmingGame {
         this.grid = [];
         this.gridWidth = 1;
         this.gridHeight = 1;
-        this.gold = 50;
+        // Use universal currency system
+        this.currency = new UniversalCurrency();
         this.energy = 100;
         this.maxEnergy = 100;
         this.day = 1;
@@ -176,13 +177,11 @@ class FarmingGame {
         const egg = this.eggs[eggType];
         if (!egg) return;
 
-        if (this.gold < egg.price) {
+        if (!this.currency.subtractGold(egg.price)) {
             this.showMessage(`Not enough gold! Need ${egg.price}g`);
             return;
         }
 
-        this.gold -= egg.price;
-        
         // Get a random pet based on rarity
         let pet;
         if (eggType === 'basic') {
@@ -447,8 +446,10 @@ class FarmingGame {
     harvestTile(row, col) {
         const tile = this.grid[row][col];
         const crop = getCropById(tile.cropId);
-        const value = Math.round(crop.harvestPrice * this.upgrades.cropValue.multiplier * this.petIncomeBoost);
-        this.gold += value;
+        // Very scarce rewards - 1-5 gold per harvest
+        const baseValue = Math.min(3, Math.max(1, Math.floor(crop.harvestPrice / 20)));
+        const value = Math.round(baseValue * this.upgrades.cropValue.multiplier * this.petIncomeBoost);
+        this.currency.addGold(value);
         this.energy -= 2;
         
         this.showMessage(`Harvested ${crop.name} for ${value}g!`);
@@ -482,12 +483,11 @@ class FarmingGame {
 
     buySeed(cropId) {
         const crop = getCropById(cropId);
-        if (this.gold < crop.seedPrice) {
+        if (!this.currency.subtractGold(crop.seedPrice)) {
             this.showMessage('Not enough gold!');
             return;
         }
 
-        this.gold -= crop.seedPrice;
         this.inventory[cropId]++;
         this.showMessage(`Bought ${crop.name} seed!`);
         this.updateUI();
@@ -499,16 +499,13 @@ class FarmingGame {
 
     buyUpgrade(upgradeType) {
         let upgrade = this.upgrades[upgradeType];
-        if (this.gold < upgrade.cost) {
+        if (!this.currency.subtractGold(upgrade.cost)) {
             this.showMessage('Not enough gold!');
             return;
         }
 
-        this.gold -= upgrade.cost;
-        
         if (upgradeType === 'land') {
             this.upgrades.land.level++;
-            // Each level: 1->2x2, 2->3x3, 3->4x4, etc
             const newSize = this.upgrades.land.level + 1;
             this.gridWidth = newSize;
             this.gridHeight = newSize;
@@ -566,7 +563,7 @@ class FarmingGame {
     }
 
     updateUI() {
-        document.getElementById('gold').textContent = this.gold;
+        document.getElementById('gold').textContent = this.currency.getGold();
         document.getElementById('energy').textContent = this.energy;
         document.getElementById('day').textContent = this.day;
         document.getElementById('season').textContent = this.season;
@@ -601,7 +598,7 @@ class FarmingGame {
         const unlockedList = Array.from(this.unlockedCrops);
         unlockedList.forEach(cropId => {
             const crop = getCropById(cropId);
-            const canBuy = this.gold >= crop.seedPrice;
+            const canBuy = this.currency.getGold() >= crop.seedPrice;
             const div = document.createElement('div');
             div.className = `shop-item ${crop.rarity}`;
             div.innerHTML = `
@@ -622,7 +619,7 @@ class FarmingGame {
 
         // Land Upgrade
         const landUpgrade = this.upgrades.land;
-        const canBuyLand = this.gold >= landUpgrade.cost;
+        const canBuyLand = this.currency.getGold() >= landUpgrade.cost;
         const landDiv = document.createElement('div');
         landDiv.className = `upgrade-item land`;
         landDiv.innerHTML = `
@@ -637,7 +634,7 @@ class FarmingGame {
         // Tool Upgrades
         ['plow', 'water', 'harvest', 'plant'].forEach(toolType => {
             const upgrade = this.upgrades[toolType];
-            const canBuy = this.gold >= upgrade.cost;
+            const canBuy = this.currency.getGold() >= upgrade.cost;
             const div = document.createElement('div');
             div.className = `upgrade-item tool`;
             const toolName = toolType === 'plant' ? 'Plant' : (toolType.charAt(0).toUpperCase() + toolType.slice(1));
@@ -654,7 +651,7 @@ class FarmingGame {
 
         // Crop Value Upgrade
         const cropUpgrade = this.upgrades.cropValue;
-        const canBuyCrop = this.gold >= cropUpgrade.cost;
+        const canBuyCrop = this.currency.getGold() >= cropUpgrade.cost;
         const div = document.createElement('div');
         div.className = `upgrade-item crop`;
         div.innerHTML = `
@@ -681,7 +678,7 @@ class FarmingGame {
         // Display egg types
         Object.keys(this.eggs).forEach(eggType => {
             const egg = this.eggs[eggType];
-            const canBuy = this.gold >= egg.price;
+            const canBuy = this.currency.getGold() >= egg.price;
             const div = document.createElement('div');
             div.className = `shop-item ${eggType === 'exotic' ? 'elite' : (eggType === 'rare' ? 'rare' : 'basic')}`;
             const pityCounter = this.gacha[`${eggType}Pulls`];

@@ -1,9 +1,9 @@
 class FarmingGame {
     constructor() {
+        this.currency = new UniversalCurrency();
         this.grid = [];
         this.gridWidth = 1;
         this.gridHeight = 1;
-        this.gold = 50;
         this.energy = 100;
         this.maxEnergy = 100;
         this.day = 1;
@@ -183,7 +183,6 @@ class FarmingGame {
         if (!saveDataRaw) return; // nothing to load
         try {
             const data = JSON.parse(saveDataRaw);
-            this.gold = data.gold || 50;
             this.energy = data.energy || 100;
             this.day = data.day || 1;
             this.season = data.season || 'Spring';

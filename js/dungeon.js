@@ -17,12 +17,12 @@ const ITEMS = [
 
 class DungeonGame {
     constructor() {
+        this.currency = new UniversalCurrency();
         this.playerHealth = 100;
         this.playerMaxHealth = 100;
         this.playerLevel = 1;
         this.playerXP = 0;
         this.playerXPToLevel = 100;
-        this.playerGold = 0;
         this.currentFloor = 1;
         this.baseAttackMin = 5;
         this.baseAttackMax = 10;
@@ -164,13 +164,16 @@ class DungeonGame {
     }
 
     enemyDefeated() {
-        const goldReward = this.currentEnemy.xpReward / 2;
-        this.playerGold += goldReward;
+        // Minimal gold rewards (1-3 gold per enemy) - dungeon is NOT the path to wealth
+        const baseGold = Math.max(1, Math.floor(this.currentEnemy.xpReward / 100));
+        const goldReward = Math.min(3, baseGold + Math.floor(Math.random() * 2));
+        this.currency.addGold(goldReward);
+        
         this.playerXP += this.currentEnemy.xpReward;
         this.totalXPEarned += this.currentEnemy.xpReward;
         this.enemiesDefeated++;
 
-        this.addMessage(`🎉 Victory! +${this.currentEnemy.xpReward} XP, +${goldReward} gold!`, 'buff');
+        this.addMessage(`🎉 Victory! +${this.currentEnemy.xpReward} XP, +${goldReward}g!`, 'buff');
 
         if (this.playerXP >= this.playerXPToLevel) {
             this.levelUp();

@@ -2,6 +2,7 @@
 
 class SpaceRunner {
     constructor() {
+        this.currency = new UniversalCurrency();
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
         this.canvas.width = 600;

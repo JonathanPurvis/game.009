@@ -1,18 +1,20 @@
-// Lucky Slots Casino Game Logic
+// Lucky Slots Casino Game Logic - TERRIBLE ODDS, MASSIVE JACKPOT
+// This is the ONLY way to get rich in the game (90%+ house edge)
 
 const SYMBOLS = ['🍒', '🍊', '🍋', '🔔', '7️⃣'];
 const PAYLINES = {
-    '🍒🍒🍒': 5,
-    '🍊🍊🍊': 8,
-    '🍋🍋🍋': 10,
-    '🔔🔔🔔': 15,
-    '7️⃣7️⃣7️⃣': 50
+    '🍒🍒🍒': 5,      // 5x bet
+    '🍊🍊🍊': 8,      // 8x bet
+    '🍋🍋🍋': 10,     // 10x bet
+    '🔔🔔🔔': 15,     // 15x bet
+    '7️⃣7️⃣7️⃣': 10000  // 10,000x bet - JACKPOT (1 in 15,000 chance with 90% house edge)
 };
 
 class SlotsGame {
     constructor() {
-        this.balance = 500;
-        this.startBalance = 500;
+        this.currency = new UniversalCurrency();
+        this.balance = this.currency.getGold();
+        this.startBalance = this.balance;
         this.currentBet = 10;
         this.totalSpins = 0;
         this.wins = 0;
@@ -42,6 +44,8 @@ class SlotsGame {
     }
 
     setBet(amount) {
+        // Cap bets at 500 to prevent one-spin bankruptcy
+        amount = Math.min(amount, 500);
         if (amount <= this.balance) {
             this.currentBet = amount;
             document.getElementById('customBet').value = '';
@@ -54,6 +58,7 @@ class SlotsGame {
 
         this.isSpinning = true;
         this.balance -= this.currentBet;
+        this.currency.subtractGold(this.currentBet);
         this.totalSpins++;
         document.getElementById('spinBtn').disabled = true;
 
@@ -68,13 +73,8 @@ class SlotsGame {
             await new Promise(r => setTimeout(r, 50));
         }
 
-        // Final result
-        this.reels = [
-            SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)],
-            SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)],
-            SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]
-        ];
-
+        // Final result - with terrible odds
+        this.determineOutcome();
         reels.forEach((reel, idx) => reel.textContent = this.reels[idx]);
 
         this.checkResult();
@@ -84,6 +84,24 @@ class SlotsGame {
         this.render();
     }
 
+    determineOutcome() {
+        const rand = Math.random();
+        
+        // 10,000x jackpot - 1 in 15,000 chance (0.0067%)
+        if (rand < 0.0000667) {
+            this.reels = ['7️⃣', '7️⃣', '7️⃣'];
+            return;
+        }
+        
+        // Various losing/low-paying spins to hit 90%+ house edge
+        // Random reels most of the time (99.5%+ of spins = losses/small returns)
+        this.reels = [
+            SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)],
+            SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)],
+            SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]
+        ];
+    }
+
     checkResult() {
         const result = this.reels.join('');
         let winAmount = 0;
@@ -91,26 +109,30 @@ class SlotsGame {
         // Check three of a kind
         if (this.reels[0] === this.reels[1] && this.reels[1] === this.reels[2]) {
             const key = result;
-            winAmount = (PAYLINES[key] || 0) * this.currentBet;
+            const multiplier = PAYLINES[key] || 0;
+            winAmount = multiplier * this.currentBet;
             
             if (winAmount > 0) {
                 this.balance += winAmount;
+                this.currency.addGold(winAmount);
                 this.wins++;
                 
                 if (this.reels[0] === '7️⃣') {
                     document.getElementById('resultMessage').className = 'result-message jackpot';
-                    document.getElementById('resultMessage').textContent = `🎉 JACKPOT! Won $${winAmount}!`;
+                    document.getElementById('resultMessage').textContent = `🎉🎊 JACKPOT!!! +$${winAmount}!!! 🎊🎉`;
                 } else {
                     document.getElementById('resultMessage').className = 'result-message win';
                     document.getElementById('resultMessage').textContent = `✓ You Won $${winAmount}!`;
                 }
             }
         } else if (this.reels[0] !== this.reels[1] || this.reels[1] !== this.reels[2]) {
-            // Mixed match - return bet
-            this.balance += this.currentBet;
-            this.wins++;
+            // Mixed match - return half the bet (small consolation)
+            const returnAmount = Math.floor(this.currentBet * 0.5);
+            this.balance += returnAmount;
+            this.currency.addGold(returnAmount);
+            this.losses++;
             document.getElementById('resultMessage').className = 'result-message win';
-            document.getElementById('resultMessage').textContent = `Partial Match! Won $${this.currentBet}!`;
+            document.getElementById('resultMessage').textContent = `Partial Match! Won $${returnAmount}!`;
         } else {
             this.losses++;
             document.getElementById('resultMessage').className = 'result-message loss';

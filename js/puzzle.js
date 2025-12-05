@@ -8,6 +8,7 @@ const PUZZLE_TYPES = [
 
 class PuzzleMastersGame {
     constructor() {
+        this.currency = new UniversalCurrency();
         this.level = 1;
         this.score = 0;
         this.streak = 0;
