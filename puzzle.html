@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle Masters - Game Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            color: #667eea;
+            padding: 20px;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .btn-back {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background: #764ba2;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .hud {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .hud-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .hud-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .hud-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .puzzle-area {
+            background: #f5f5f5;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .puzzle-type {
+            font-size: 0.9rem;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Memory Grid Puzzle */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .memory-card {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 2px solid #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .memory-card:hover {
+            transform: scale(1.05);
+        }
+
+        .memory-card.revealed {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            color: #667eea;
+        }
+
+        .memory-card.matched {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            cursor: default;
+        }
+
+        .memory-card.matched:hover {
+            transform: scale(1);
+        }
+
+        /* Number Sequence Puzzle */
+        .sequence-inputs {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .sequence-input {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .sequence-input:hover {
+            border-color: #764ba2;
+            background: #f5f5f5;
+        }
+
+        .sequence-input.correct {
+            background: #2ecc71;
+            color: white;
+            border-color: #27ae60;
+        }
+
+        .sequence-input.wrong {
+            background: #e74c3c;
+            color: white;
+            border-color: #c0392b;
+        }
+
+        /* Tile Match Puzzle */
+        .tile-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .tile {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 2px solid #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .tile:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .tile.selected {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            color: #667eea;
+            border-color: #667eea;
+        }
+
+        .tile.correct {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            cursor: default;
+        }
+
+        .tile.correct:hover {
+            transform: none;
+        }
+
+        .hint-text {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid #667eea;
+            color: #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-hint {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+
+        .game-over-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .game-over-modal.show {
+            display: flex;
+        }
+
+        .game-over-content {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            max-width: 450px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-over-title {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .game-over-stats {
+            background: #f5f5f5;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .game-over-stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .game-over-stat span:last-child {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .game-over-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn-game-over {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-game-over:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-game-over.danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .hud {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .memory-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+
+            .memory-card {
+                width: 65px;
+                height: 65px;
+                font-size: 1.5rem;
+            }
+
+            .tile-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .tile {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+
+            .sequence-inputs {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🧩 Puzzle Masters</h1>
+        <a href="index.html" class="btn-back">← Back to Games</a>
+    </header>
+
+    <div class="container">
+        <div class="hud">
+            <div class="hud-item">
+                <div class="hud-label">Level</div>
+                <div class="hud-value" id="level">1</div>
+            </div>
+            <div class="hud-item">
+                <div class="hud-label">Score</div>
+                <div class="hud-value" id="score">0</div>
+            </div>
+            <div class="hud-item">
+                <div class="hud-label">Time</div>
+                <div class="hud-value" id="time">60s</div>
+            </div>
+            <div class="hud-item">
+                <div class="hud-label">Streak</div>
+                <div class="hud-value" id="streak">0</div>
+            </div>
+        </div>
+
+        <div class="puzzle-area" id="puzzleArea">
+            <div class="puzzle-type" id="puzzleType">Memory Match</div>
+            <div id="puzzleContent"></div>
+            <div class="hint-text" id="hintText">Match all pairs to advance!</div>
+            <div class="controls" id="controls">
+                <button class="btn btn-hint" id="hintBtn">💡 Get Hint</button>
+                <button class="btn" id="submitBtn">✓ Check Answer</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-over-modal" id="gameOverModal">
+        <div class="game-over-content">
+            <div class="game-over-title" id="gameOverTitle">Game Complete!</div>
+            <div class="game-over-stats">
+                <div class="game-over-stat">
+                    <span>Levels Completed:</span>
+                    <span id="finalLevel">1</span>
+                </div>
+                <div class="game-over-stat">
+                    <span>Total Score:</span>
+                    <span id="finalScore">0</span>
+                </div>
+                <div class="game-over-stat">
+                    <span>Best Streak:</span>
+                    <span id="finalStreak">0</span>
+                </div>
+                <div class="game-over-stat">
+                    <span>Time Taken:</span>
+                    <span id="finalTime">0s</span>
+                </div>
+            </div>
+            <div class="game-over-buttons">
+                <button class="btn-game-over" id="btnPlayAgain">Play Again</button>
+                <button class="btn-game-over danger" id="btnMainMenu">Main Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils.js" defer></script>
+    <script src="js/puzzle.js" defer></script>
+</body>
+</html>
